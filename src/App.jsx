@@ -147,7 +147,7 @@ const App = () => {
             />
           ))}
           <Text
-            text={`Score: ${score/2}`}
+            text={`Score: ${score}`}
             x={20}
             y={20}
             style={{
