@@ -11,8 +11,8 @@ const App = () => {
   const [passedPipes, setPassedPipes] = useState(0);
   const [obstacleSpeed, setObstacleSpeed] = useState(2); 
 
-  const gravity = 0.6;
-  const lift = -5;
+  const gravity = 0.5;
+  const lift = -7;
   const gapSize = 140;
 
   useEffect(() => {
@@ -126,11 +126,11 @@ const App = () => {
     <div
       onTouchStart={handleTap}
       onMouseDown={handleTap}
-      className="relative w-[800px] h-[600px]  bg-gradient-to-b from-sky-300 to-sky-500"
+      className="relative w-[800px] h-[600px] mx-auto bg-gradient-to-b from-sky-300 to-sky-500"
     >
       <Stage
-        width={500}
-        height={500}
+        width={800}
+        height={600}
         options={{ backgroundColor: 0x87ceeb }}
       >
         <Container>
