@@ -1,5 +1,5 @@
 import './App.css';
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { Stage, Container, Sprite, Graphics, Text } from '@pixi/react';
 
 const App = () => {
@@ -10,9 +10,11 @@ const App = () => {
   const [gameOver, setGameOver] = useState(false);
   const [passedPipes, setPassedPipes] = useState(0);
   const [obstacleSpeed, setObstacleSpeed] = useState(2); 
+  const [stageWidth, setStageWidth] = useState(window.innerWidth);
+  const [stageHeight, setStageHeight] = useState(window.innerHeight);
 
-  const gravity = 0.5;
-  const lift = -7;
+  const gravity = 0.6;
+  const lift = -5;
   const gapSize = 140;
 
   useEffect(() => {
@@ -21,6 +23,17 @@ const App = () => {
     const newSpeed = 2 + Math.floor(passedPipes / speedIncreaseInterval) * speedIncrement;
     setObstacleSpeed(newSpeed); 
   }, [passedPipes]);
+
+  // Update stage size dynamically when window is resized
+  const updateStageSize = useCallback(() => {
+    setStageWidth(window.innerWidth);
+    setStageHeight(window.innerHeight);
+  }, []);
+
+  useEffect(() => {
+    window.addEventListener('resize', updateStageSize);
+    return () => window.removeEventListener('resize', updateStageSize);
+  }, [updateStageSize]);
 
   const resetGame = () => {
     setBirdY(300);
@@ -35,19 +48,19 @@ const App = () => {
   useEffect(() => {
     if (!gameOver) {
       const initialPipes = Array.from({ length: 3 }, (_, i) => ({
-        x: 800 + i * 300,
-        gapY: Math.floor(Math.random() * (400 - gapSize)), 
+        x: stageWidth + i * 300,
+        gapY: Math.floor(Math.random() * (stageHeight - gapSize)), 
       }));
       setPipes(initialPipes);
     }
-  }, [gameOver]);
+  }, [gameOver, stageWidth, stageHeight]);
 
   useEffect(() => {
     if (gameOver) return;
 
     const interval = setInterval(() => {
       setVelocity((prevVelocity) => prevVelocity + gravity);
-      setBirdY((prevY) => Math.max(Math.min(prevY + velocity, 550), 0));
+      setBirdY((prevY) => Math.max(Math.min(prevY + velocity, stageHeight - 50), 0));
 
       setPipes((prevPipes) => {
         let passedPipesThisInterval = 0;
@@ -71,19 +84,19 @@ const App = () => {
         }));
       });
 
-      if (pipes.length > 0 && pipes[pipes.length - 1].x < 500) {
+      if (pipes.length > 0 && pipes[pipes.length - 1].x < stageWidth - 100) {
         setPipes((prevPipes) => [
           ...prevPipes,
           {
-            x: 800,
-            gapY: Math.floor(Math.random() * (400 - gapSize)), 
+            x: stageWidth,
+            gapY: Math.floor(Math.random() * (stageHeight - gapSize)),
           },
         ]);
       }
     }, 16);
 
     return () => clearInterval(interval);
-  }, [velocity, pipes, gameOver, obstacleSpeed]);
+  }, [velocity, pipes, gameOver, obstacleSpeed, stageHeight, stageWidth]);
 
   const handleTap = () => {
     if (gameOver) {
@@ -96,8 +109,8 @@ const App = () => {
   const renderPipes = (graphics, pipe) => {
     graphics.clear();
     graphics.beginFill(0x00ff00);
-    graphics.drawRect(pipe.x, 0, 50, pipe.gapY); 
-    graphics.drawRect(pipe.x, pipe.gapY + gapSize, 50, 600 - (pipe.gapY + gapSize)); 
+    graphics.drawRect(pipe.x, 0, 50, pipe.gapY);
+    graphics.drawRect(pipe.x, pipe.gapY + gapSize, 50, stageHeight - (pipe.gapY + gapSize));
     graphics.endFill();
   };
 
@@ -126,11 +139,12 @@ const App = () => {
     <div
       onTouchStart={handleTap}
       onMouseDown={handleTap}
-      className="relative w-[800px] h-[600px] mx-auto bg-gradient-to-b from-sky-300 to-sky-500"
+      className="relative w-full h-full overflow-hidden"
+      style={{ margin: 0 }}
     >
       <Stage
-        width={800}
-        height={600}
+        width={stageWidth}
+        height={stageHeight}
         options={{ backgroundColor: 0x87ceeb }}
       >
         <Container>
@@ -160,8 +174,8 @@ const App = () => {
           {gameOver && (
             <Text
               text="Game Over! Tap to Restart"
-              x={250}
-              y={250}
+              x={stageWidth / 4}
+              y={stageHeight / 2}
               style={{
                 fontFamily: 'Arial',
                 fontSize: 36,
@@ -177,3 +191,4 @@ const App = () => {
 };
 
 export default App;
+
