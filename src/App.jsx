@@ -126,7 +126,7 @@ const App = () => {
     <div
       onTouchStart={handleTap}
       onMouseDown={handleTap}
-      className="relative w-[800px] h-[600px] mx-auto bg-gradient-to-b from-sky-300 to-sky-500"
+      className="relative w-[800px] h-[600px]  bg-gradient-to-b from-sky-300 to-sky-500"
     >
       <Stage
         width={500}
